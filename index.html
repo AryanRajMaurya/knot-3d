@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>KNOT — a study in tension</title>
+<meta name="description" content="A scroll-driven 3D study of a glass torus knot: one object, real material, and a camera that moves through true depth. Made in the browser." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="KNOT — a study in tension" />
+<meta property="og:description" content="A scroll-driven 3D study of glass, light and tension." />
+<meta property="og:image" content="./og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%2307080c'/><path d='M8 2a6 6 0 0 1 6 6 6 6 0 0 1-6 6 6 6 0 0 1-6-6 6 6 0 0 1 6-6z' fill='none' stroke='%239fd8ff' stroke-width='1.4'/></svg>" />
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <canvas id="grain" aria-hidden="true"></canvas>
+  <div id="vignette" aria-hidden="true"></div>
+
+  <div id="scroll-space"></div>
+
+  <header id="top">
+    <div class="brand"><span class="name">KNOT</span></div>
+    <div class="index"><span id="idx">01</span><span class="sep">/</span><span id="total">05</span></div>
+  </header>
+
+  <main id="chapters">
+    <section class="chapter" data-i="0">
+      <h1><span class="line">A form</span> <span class="line">under</span> <span class="line">tension</span></h1>
+      <p class="sub">A torus knot, cast in glass. Scroll to approach.</p>
+    </section>
+    <section class="chapter" data-i="1">
+      <h1><span class="line">Glass,</span> <span class="line">not</span> <span class="line">plastic</span></h1>
+      <p class="sub">Transmission, thickness and a little iridescence.</p>
+    </section>
+    <section class="chapter" data-i="2">
+      <h1><span class="line">Light has</span> <span class="line">to get</span> <span class="line">in</span></h1>
+      <p class="sub">Inside the knot the material stops being a surface.</p>
+    </section>
+    <section class="chapter" data-i="3">
+      <h1><span class="line">Every surface</span> <span class="line">is a</span> <span class="line">mirror</span></h1>
+      <p class="sub">Angle of incidence, angle of reflection.</p>
+    </section>
+    <section class="chapter" data-i="4">
+      <h1><span class="line">Made in</span> <span class="line">the</span> <span class="line">browser</span></h1>
+      <p class="sub">Three.js, WebGL2, no textures. Drag to turn it.</p>
+    </section>
+  </main>
+
+  <div id="hud">
+    <div class="bar"><i id="bar"></i></div>
+    <div class="meta"><span id="pct">000</span><span class="unit">%</span><span class="hint" id="hint">scroll</span></div>
+  </div>
+
+  <div id="cursor" aria-hidden="true"></div>
+
+  <script>
+    window.__errs = [];
+    window.addEventListener('error', function (e) { window.__errs.push(String(e.message || e.error)); });
+    window.addEventListener('unhandledrejection', function (e) { window.__errs.push('rejection: ' + String(e.reason)); });
+  </script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
