@@ -4,7 +4,11 @@
 // short chapters. Three.js r180 (MIT), vendored. No textures, no model files:
 // the object, the environment and the backdrop are all generated at runtime.
 
-import * as THREE from './vendor/three.module.min.js';
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const COARSE = matchMedia('(pointer: coarse)').matches;
@@ -17,6 +21,13 @@ renderer.toneMappingExposure = 1.35;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+
+// ── post: bloom over the highlights, then tone-map on the way out ──────
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.5, 0.8, 0.7);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
 
 // ── a procedural environment ───────────────────────────────────────────
 // A softbox strip rig painted into an equirectangular canvas, then prefiltered.
@@ -148,6 +159,26 @@ const dust = (() => {
   return p;
 })();
 
+// a pool of light under the knot, so it sits in a space rather than floating
+{
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const g = c.getContext('2d');
+  const rg = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+  rg.addColorStop(0, 'rgba(130,180,255,0.5)');
+  rg.addColorStop(0.45, 'rgba(70,110,190,0.16)');
+  rg.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = rg;
+  g.fillRect(0, 0, 256, 256);
+  const pool = new THREE.Mesh(
+    new THREE.PlaneGeometry(10, 10),
+    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })
+  );
+  pool.rotation.x = -Math.PI / 2;
+  pool.position.y = -1.8;
+  scene.add(pool);
+}
+
 const key = new THREE.DirectionalLight(0xdfe9ff, 3.2);
 key.position.set(3, 4, 5);
 scene.add(key);
@@ -252,12 +283,17 @@ function paintGrain(now) {
   gctx.putImageData(img, 0, 0);
 }
 const cursor = document.getElementById('cursor');
+const intro = document.getElementById('intro');
+const outro = document.getElementById('outro');
 
 // ── sizing ─────────────────────────────────────────────────────────────
 function resize() {
   const w = innerWidth, h = innerHeight;
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   renderer.setSize(w, h, false);
+  composer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  composer.setSize(w, h);
+  bloom.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
 }
@@ -312,13 +348,16 @@ function frame(now) {
   const s = lerp(0.86, 1.16, ease(p));
   knot.scale.setScalar(s);
 
-  setChapter(Math.min(chapters.length - 1, Math.floor(p * chapters.length)));
+  setChapter(p < 0.02 ? -1 : Math.min(chapters.length - 1, Math.floor(p * chapters.length)));
   pctEl.textContent = String(Math.round(p * 100)).padStart(3, '0');
   barEl.style.transform = `scaleX(${p})`;
   hintEl.classList.toggle('gone', p > 0.02);
+  intro.classList.toggle('gone', p > 0.012);
+  outro.classList.toggle('on', p > 0.962);
+  document.getElementById('chapters').classList.toggle('dim', p > 0.955 || p < 0.02);
 
   if (!REDUCED) paintGrain(now);
-  renderer.render(scene, camera);
+  composer.render();
 }
 
 requestAnimationFrame(frame);

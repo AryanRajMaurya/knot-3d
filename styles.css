@@ -52,7 +52,7 @@ body { cursor: none; }
     linear-gradient(to bottom, rgba(0,0,0,0.45), transparent 18%, transparent 82%, rgba(0,0,0,0.55));
 }
 
-#scroll-space { height: 620vh; }
+#scroll-space { height: 720vh; }
 
 /* ── chrome ─────────────────────────────────────────────────────────── */
 #top {
@@ -70,7 +70,8 @@ body { cursor: none; }
 #top .index .sep { margin: 0 6px; color: var(--ink-faint); }
 
 /* ── chapters ───────────────────────────────────────────────────────── */
-#chapters { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+#chapters { position: fixed; inset: 0; z-index: 4; pointer-events: none; transition: opacity .5s ease; }
+#chapters.dim { opacity: 0; }
 
 .chapter {
   position: absolute;
@@ -84,24 +85,33 @@ body { cursor: none; }
 }
 .chapter.on { opacity: 1; transform: none; }
 
-.chapter h1 {
+.chapter h2 {
   font-family: var(--serif);
   font-weight: 400;
+  text-shadow: 0 2px 40px rgba(0,0,0,.65), 0 0 3px rgba(0,0,0,.7);
   font-size: clamp(38px, 8.2vw, 108px);
   line-height: 0.98;
   letter-spacing: -0.02em;
   color: var(--ink);
   text-wrap: balance;
 }
-.chapter h1 .line { display: inline-block; overflow: hidden; vertical-align: bottom; }
-.chapter h1 .line > span {
+.chapter .kicker {
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.05vw, 12px);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 18px;
+}
+.chapter h2 .line { display: inline-block; overflow: hidden; vertical-align: bottom; }
+.chapter h2 .line > span {
   display: inline-block;
   transform: translateY(110%);
   transition: transform .8s cubic-bezier(.2,0,0,1);
 }
-.chapter.on h1 .line > span { transform: none; }
-.chapter.on h1 .line:nth-child(2) > span { transition-delay: .07s; }
-.chapter.on h1 .line:nth-child(3) > span { transition-delay: .14s; }
+.chapter.on h2 .line > span { transform: none; }
+.chapter.on h2 .line:nth-child(2) > span { transition-delay: .07s; }
+.chapter.on h2 .line:nth-child(3) > span { transition-delay: .14s; }
 
 .chapter .sub {
   margin-top: 20px;
@@ -161,6 +171,76 @@ body { cursor: none; }
   #hud { left: 18px; right: 18px; bottom: 16px; }
   #hud .meta { min-width: 0; }
   .chapter { left: 7vw; bottom: 12vh; }
+}
+
+/* ── intro + outro ──────────────────────────────────────────────────── */
+#intro {
+  position: fixed; inset: 0; z-index: 5;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  pointer-events: none;
+  transition: opacity .5s ease, transform .5s cubic-bezier(.2,0,0,1);
+}
+#intro.gone { opacity: 0; transform: scale(1.04); }
+.intro-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  text-shadow: 0 2px 40px rgba(0,0,0,.6), 0 0 3px rgba(0,0,0,.7);
+  font-size: clamp(64px, 17vw, 220px);
+  line-height: 0.86;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+}
+.intro-sub {
+  margin-top: 22px;
+  font-family: var(--mono);
+  font-size: clamp(10px, 1.15vw, 13px);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.intro-cue {
+  position: absolute; bottom: 9vh;
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.intro-cue span {
+  display: inline-block;
+  animation: cue 2.4s ease-in-out infinite;
+}
+@keyframes cue {
+  0%, 100% { transform: translateY(0); opacity: .55; }
+  50% { transform: translateY(7px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .intro-cue span { animation: none; } }
+
+#outro {
+  position: fixed; inset: 0; z-index: 5;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .6s ease, transform .6s cubic-bezier(.2,0,0,1);
+}
+#outro.on { opacity: 1; transform: none; }
+.outro-mark {
+  font-family: var(--serif);
+  font-size: clamp(48px, 11vw, 150px);
+  line-height: 0.9; letter-spacing: -0.03em;
+}
+.outro-sub {
+  margin-top: 18px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink-dim);
+}
+.outro-credit {
+  margin-top: 40px;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint);
 }
 
 @media (prefers-reduced-motion: reduce) {
